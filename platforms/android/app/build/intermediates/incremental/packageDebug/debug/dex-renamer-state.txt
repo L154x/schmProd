@@ -1,0 +1,4 @@
+#Wed Jul 11 11:08:38 CEST 2018
+base.0=/Users/lisa/Downloads/Schmetterlinge-feature-firebase-db/platforms/android/app/build/intermediates/transforms/dexMerger/debug/0
+renamed.0=classes.dex
+file.0=/Users/lisa/Downloads/Schmetterlinge-feature-firebase-db/platforms/android/app/build/intermediates/transforms/dexMerger/debug/0/classes.dex
