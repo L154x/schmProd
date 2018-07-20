@@ -61,6 +61,7 @@ export class FindingModalProvider {
     return this.butterflies;
   }
 
+  // ButterflAI:  Sends request to our model
   sendEval(data: any): Observable<any> {
     var headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -69,5 +70,5 @@ export class FindingModalProvider {
     console.log(headers);
     return this.http.post(this.serverurl, data, {headers});
   }
-  
+
 }

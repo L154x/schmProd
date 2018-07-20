@@ -406,7 +406,7 @@ export class FindModalPage {
       }
     }
 
-    //rearranged the images pixelData to an interpretabl format for the model
+    //rearrange the images pixelData to an interpretable format for the model
     to4DArrays(image) {
       // get an rgb array for the images pixel values
       console.time("getImageData and turn into an array");
@@ -485,7 +485,7 @@ export class FindModalPage {
         this.res = this.res.substring(39,this.res.length-3);
         var r  = this.res.split(', ');
 
-        //filling a dictionary with the classes and their probabilities
+        //filling a dictionary with the classes and their values
         //identifying the largest value and the corresponding class
         var results = {};
         var max = 0;
@@ -537,7 +537,6 @@ export class FindModalPage {
           }
         );
       }
-
       else {
         console.log("No photo taken, no data to be analyzed.");
       }

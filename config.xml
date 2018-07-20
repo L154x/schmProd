@@ -99,8 +99,8 @@
     <allow-navigation href="http://192.168.0.54:8100" />
     <allow-navigation href="http://192.168.178.76:8100" />
     <allow-navigation href="http://10.0.0.151:8100" />
-    <engine name="browser" spec="5.0.3" />
-    <engine name="ios" spec="4.5.4" />
-    <engine name="android" spec="~7.0.0" />
     <plugin name="cordova-plugin-advanced-http" spec="^1.11.1" />
+    <engine name="browser" spec="5.0.3" />
+    <engine name="android" spec="7.0.0" />
+    <engine name="ios" spec="4.5.4" />
 </widget>
