@@ -361,8 +361,8 @@ export class FindModalPage {
       console.log(this.butterflyForm.value);
 
       this.usrSpecies = this.butterflyForm.controls['species'].value;
-      if  (this.pictures[0]) {
-        // put image on canvas, starts the classification process
+      if  (this.pictures[0]) { // if exists
+        // Put image on canvas, start the classification process
         this.classify(this.pictures[0]);
       }
       // the taken pictures are patched into the formControl
@@ -394,8 +394,7 @@ export class FindModalPage {
       return this.readOnly;
     }
 
-    // starts the classification by first creating a canvas and reading the image's pixel value from said canvas
-
+    // Start the classification by first creating a canvas and reading the image's pixel value from said canvas
     classify(image) {
       var image2 = new Image();
       image2.src = image;
@@ -406,32 +405,35 @@ export class FindModalPage {
       }
     }
 
-    //rearrange the images pixelData to an interpretable format for the model
+    // Rearrange the image's pixelData to an interpretable format for the model
     to4DArrays(image) {
-      // get an rgb array for the images pixel values
+      // Get a rgb array for the image's pixel values
       console.time("getImageData and turn into an array");
 
-      var dataTyped = image.data; //returns a UInt8TypedArray with r,g,b,a values
-      var data = Array.prototype.slice.call(dataTyped); //transforms the typed array to a normal array
+      var dataTyped = image.data; // Returns a UInt8TypedArray with r,g,b,a values
+      var data = Array.prototype.slice.call(dataTyped); // Transforms the typed array to a normal array
       console.timeEnd("getImageData and turn into an array");
 
       console.log(data);
       console.time("Making4DArray");
+
+      // New array with length 3 (rgb), skip over a value
       var arr = [];
       for (var i = 0; i < data.length; i += 4) {
-        arr.push([data[i], data[i+1], data[i+2]]);	//new array with length 3 (rgb), skip over a value
+        arr.push([data[i], data[i+1], data[i+2]]);
       }
       console.log(arr);
 
+      // The 2D Array is transformed into 3D Array with dimension height x width
       var arr2 = [];
-      for (var i = 0; i < arr.length; i += this.canvas.width) { // Das 2D Array wird in ein 3D Array umgewandelt mit den Maßen Höhe mal Breite
+      for (var i = 0; i < arr.length; i += this.canvas.width) {
         arr2.push(arr.slice(i, i+this.canvas.width));
       }
 
       console.log(arr2);
 
       var arr3 = [];
-      arr3.push(arr2); //Einfügen in ein weiteres leeres Array. [[Bild]]
+      arr3.push(arr2); //Insert in new empty array. [[Image]]
 
       console.log(arr3);
       console.timeEnd("Making4DArray");
@@ -439,14 +441,15 @@ export class FindModalPage {
       this.send(arr3);
     }
 
-    // posting the image to our ML model
+    // Posting the image to our ML model
     send(imageInfo) {
-      //Payload definieren
+      // Define payload
       var datas : any = {
         "values": imageInfo
       };
       console.log(imageInfo);
-      // Header definieren, inklusive Authorisierung (klappt)
+
+      // Define header, add authorization details
       var headers : any = {
         "Connection": "keep-alive",
         "Content-Type": "application/json",
@@ -457,36 +460,29 @@ export class FindModalPage {
       this.http.post(this.urlServiceNew, datas, headers)
       .then (data => {
         console.log(data.status);
-        console.log(data.data); // data received by server
+        console.log(data.data); // Data received by server
         console.log(data.headers);
         this.res = data.data;
-        this.evaluate();
-        // this.findingModalProvider.sendEval(data).subscribe(
-        //   data => {
-        //       console.log(data);
-        //       this.res = data;
-        //   }
-        // );
-
+        this.evaluate(); // As soon as server sends response, start evaluation
       })
       .catch (error => {
         console.log(error.status);
-        console.log(error.error); // error message as string
+        console.log(error.error); // Error message as string
         console.log(error.headers);
 
       });
     }
 
-    //final evaluation of the proposed species from the service with the user's chosen species
-    // finally posting the result to the DB
+    // Final evaluation of the proposed species from the service with the user's chosen species
+    // Then posting the result to the CloudantDB
     evaluate() {
       if (this.pictures[0]) {
-        //edit string so there is only the results left
+        // Edit string so there is only the results left
         this.res = this.res.substring(39,this.res.length-3);
         var r  = this.res.split(', ');
 
-        //filling a dictionary with the classes and their values
-        //identifying the largest value and the corresponding class
+        // Filling a dictionary with the classes and their values
+        // Identifying the largest value and the corresponding class
         var results = {};
         var max = 0;
         var maxIndex = 0;
@@ -506,7 +502,7 @@ export class FindModalPage {
         this.usrSpecies = this.usrSpecies.trim().replace(" ", "_");
         console.log("species: "+ this.usrSpecies);
 
-        //Body für die DB-Post Request befüllen
+        // Fill body (JSON) for DB-Post request
         var body = "";
         body += "\"Uebereinstimmung\" : \"" + (this.usrSpecies == this.classes[maxIndex]) + "\"";
         body += ", \"Ergebnisse\" : { "
@@ -525,12 +521,14 @@ export class FindModalPage {
         body = "{" + body + "}";
         console.log(body);
 
+        // Create alert to inform user about ML service chosen species
         this.alertCtrl.create({
           title: 'Foto klassifiziert',
           subTitle: 'Dein gesendetes Foto wurde von unserer KI als '+ this.classes[maxIndex].replace("_", " ") + ' klassifiziert.',
           buttons: ['Okay']
         }).present();
 
+        // Send Post request to CloudantDB via Provider (-> in finding-modal.ts)
         this.findingModalProvider.sendEval(body).subscribe(
           data => {
             console.log(data);
@@ -541,7 +539,8 @@ export class FindModalPage {
         console.log("No photo taken, no data to be analyzed.");
       }
     }
-    //requesting and storing authentication token for ML service
+
+    // Requesting and storing authentication token for ML service
     getToken() {
       this.http.setDataSerializer('json');
       var headers : any = {
